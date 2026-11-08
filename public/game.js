@@ -1,7 +1,7 @@
 // 毛豆乐园 - 游戏主控制器
-import { startCamera, stopStream, MotionSensor, MicSensor, drawPreview } from './engine.js';
+import { startCamera, stopStream, MotionSensor, MicSensor, drawPreview, drawSelfBehind } from './engine.js';
 import { drawScene } from './render.js';
-import { createFruitSlash, createJumpBean, createFreeze, createShoutBalloon } from './games.js';
+import { createFruitSlash, createJumpBean, createFreeze, createShoutBalloon, applyShake } from './games.js';
 
 const FACTORIES = { fruit: createFruitSlash, jump: createJumpBean, freeze: createFreeze, shout: createShoutBalloon };
 const NAMES = { fruit: '切水果', jump: '跳跳豆', freeze: '木头人', shout: '大声喊气球' };
@@ -86,18 +86,32 @@ function loop(now) {
 
   const W = stage.width, H = stage.height;
   drawScene(ctx, W, H, playT);
+  // 你在屏幕里：像素化的你作为游戏背景
+  drawSelfBehind(ctx, sensor, W, H, 0.4);
 
   const result = currentGame.update(dt, sensor, W, H, mic);
-  currentGame.draw(ctx, W, H, playT);
+  ctx.save();
+  applyShake(ctx, dt * 3);
+  currentGame.draw(ctx, W, H, playT, sensor, mic);
+  ctx.restore();
 
   drawPreview(sensor, preview);
   camHint.textContent = '📷 本机识别中';
 
   if (result && result.over) { endGame(result); return; }
-  // 喊气球限时
-  if (currentGame.timeLimit && playT > currentGame.timeLimit) { endGame({ score: currentGame ? 0 : 0 }); return; }
+  // 喊气球限时结算（用当前累计分数）
+  if (currentGame.timeLimit && playT > currentGame.timeLimit) {
+    endGame({ score: lastShownScore(), best: null });
+    return;
+  }
 
   raf = requestAnimationFrame(loop);
+}
+
+// 从画布游戏对象取当前分数：给限时游戏结算用
+function lastShownScore() {
+  // 各游戏把 score 存在闭包里，这里直接读 HUD 不方便；改为让游戏对象暴露 getScore
+  return currentGame.getScore ? currentGame.getScore() : 0;
 }
 
 // 提交分数
