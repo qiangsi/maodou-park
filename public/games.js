@@ -21,12 +21,83 @@ export function createFruitSlash() {
   let lastHand = null;
   const particles = new Particles();
   const types = [{ c: PAL.red }, { c: PAL.orange }, { c: PAL.yellow }, { c: PAL.purple }];
+  // 像素写实的各水果绘制（在原点绘制，r 为半径）
+  function drawFruit(ctx, f) {
+    const r = f.r, kind = f.kind;
+    ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.rot);
+    if (f.bomb) {
+      // 黑炸弹：圆球 + 高光 + 引线 + 火花
+      ctx.fillStyle = PAL.black;
+      ctx.beginPath(); ctx.arc(0, 1, r, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#444';
+      ctx.beginPath(); ctx.arc(-r * 0.3, -r * 0.3, r * 0.45, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = PAL.orange;
+      ctx.fillRect(r * 0.3, -r - 4, 3, 5); // 引线
+      const sp = (performance.now() / 80 | 0) % 3;
+      ctx.fillStyle = sp === 0 ? PAL.yellow : sp === 1 ? PAL.orange : PAL.red;
+      ctx.fillRect(r * 0.3 + 2, -r - 9, 3, 3);
+      ctx.fillRect(r * 0.3, -r - 6, 3, 3);
+    } else if (kind === 0) {
+      // 苹果：红色带凹槽、梗、绿叶、高光
+      ctx.fillStyle = PAL.red;
+      ctx.beginPath(); ctx.arc(-r * 0.25, 0, r * 0.82, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(r * 0.25, 0, r * 0.82, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(0, r * 0.15, r * 0.85, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#6b3e1e';
+      ctx.fillRect(-2, -r - 5, 4, 7); // 梗
+      ctx.fillStyle = PAL.green;
+      ctx.fillRect(2, -r - 6, 8, 4);  // 叶
+      ctx.fillRect(1, -r - 3, 4, 3);
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.fillRect(-r * 0.5, -r * 0.45, 4, 6); // 高光
+      ctx.fillRect(-r * 0.5 + 5, -r * 0.45, 2, 3);
+    } else if (kind === 1) {
+      // 橙子：橙色圆 + 表皮麻点 + 蒂
+      ctx.fillStyle = PAL.orange;
+      ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#d97b1f';
+      for (let i = 0; i < 8; i++) {
+        const a = i * 0.9 + 0.3, rr = r * (0.3 + (i % 3) * 0.22);
+        ctx.fillRect(Math.cos(a) * rr - 1, Math.sin(a) * rr - 1, 2, 2);
+      }
+      ctx.fillStyle = '#2e7031';
+      ctx.fillRect(-1, -r - 3, 3, 4); // 蒂
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.fillRect(-r * 0.55, -r * 0.5, 5, 4);
+    } else if (kind === 2) {
+      // 香蕉：黄色月牙 + 两端深色 + 棱线
+      ctx.fillStyle = PAL.yellow;
+      ctx.beginPath();
+      ctx.arc(0, -r * 0.35, r * 1.05, Math.PI * 0.15, Math.PI * 0.85);
+      ctx.arc(0, r * 0.55, r * 0.75, Math.PI * 0.85, Math.PI * 0.15, true);
+      ctx.fill();
+      ctx.fillStyle = '#8a6d1a';
+      ctx.fillRect(-r - 3, -r * 0.3, 4, 4); // 柄端
+      ctx.fillRect(r - 1, -r * 0.25, 4, 4);
+      ctx.strokeStyle = '#e0b83a'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(0, -r * 0.35, r * 0.75, Math.PI * 0.25, Math.PI * 0.75); ctx.stroke();
+    } else {
+      // 葡萄：紫珠一串 + 高光 + 小叶
+      ctx.fillStyle = PAL.purple;
+      const dots = [[0, -r * 0.5], [-r * 0.55, 0], [r * 0.55, 0], [0, r * 0.1], [-r * 0.3, r * 0.6], [r * 0.3, r * 0.6], [0, r]];
+      for (const [dx, dy] of dots) {
+        ctx.beginPath(); ctx.arc(dx, dy, r * 0.38, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      for (const [dx, dy] of dots.slice(0, 3)) ctx.fillRect(dx - 2, dy - 3, 2, 2);
+      ctx.fillStyle = PAL.green;
+      ctx.fillRect(-3, -r - 5, 6, 4); // 叶
+      ctx.fillStyle = '#6b3e1e';
+      ctx.fillRect(-1, -r - 2, 2, 4); // 茎
+    }
+    ctx.restore();
+  }
   function spawn(W, H) {
     if (Math.random() < 0.15) {
       fruits.push({ x: W / 2, y: H + 20, vx: (Math.random() - 0.5) * 5, vy: -15 - Math.random() * 4, r: 18, bomb: true, rot: 0 });
     } else {
       const t = types[(Math.random() * types.length) | 0];
-      fruits.push({ x: W / 2 + (Math.random() - 0.5) * W * 0.5, y: H + 20, vx: (Math.random() - 0.5) * 6, vy: -14 - Math.random() * 5, r: 16, bomb: false, rot: 0, color: t.c });
+      fruits.push({ x: W / 2 + (Math.random() - 0.5) * W * 0.5, y: H + 20, vx: (Math.random() - 0.5) * 6, vy: -14 - Math.random() * 5, r: 16, bomb: false, rot: 0, color: t.c, kind: types.indexOf(t) });
     }
   }
   return {
@@ -66,15 +137,7 @@ export function createFruitSlash() {
       return false;
     },
     draw(ctx, W, H, t, S) {
-      for (const f of fruits) {
-        ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.rot);
-        ctx.fillStyle = f.bomb ? PAL.black : f.color;
-        ctx.fillRect(-f.r, -f.r, f.r * 2, f.r * 2);
-        ctx.fillStyle = f.bomb ? PAL.red : PAL.white;
-        ctx.fillRect(-f.r + 4, -f.r + 4, 5, 5);
-        if (f.bomb) { ctx.fillStyle = PAL.orange; ctx.fillRect(f.r - 3, -f.r - 6, 4, 6); }
-        ctx.restore();
-      }
+      for (const f of fruits) drawFruit(ctx, f);
       particles.draw(ctx);
       drawHandCursor(ctx, S, W, H, slashing(S) ? PAL.red : PAL.yellow);
       drawPanel(ctx, 8, 8, 170, 26);
@@ -158,24 +221,40 @@ export function createFreeze() {
   let phase = 'go', phaseT = 3, survived = 0, msg = '绿灯！使劲动！', jarFill = 0;
   const jarMax = 40;
   let caughtFlash = 0;
+  let graceT = 0;      // 红灯缓冲期：刚变红灯不判抓（你还需要时间停住）
+  let motionRun = 0;   // 连续超阈值帧数（防单帧误判）
+  const MOTION_LIMIT = 16;  // 阈值提高：呼吸、轻微晃动不算
+  const GRACE = 1.0;        // 红灯亮起后 1 秒缓冲（够你反应停住）
+  // 判定改为按时间：连续大动 ≥0.35 秒才抓（见 update 内）
   const particles = new Particles();
   return {
-    name: '木头人', icon: '🪵', desc: '绿灯动，罐子里的星星跟着涨；红灯一动就被抓！', hands: false,
-    init() { survived = 0; jarFill = 0; phase = 'go'; phaseT = 2.5; msg = '绿灯！使劲动！'; },
+    name: '木头人', icon: '🪵', desc: '绿灯动，罐子里的星星跟着涨；红灯马上停住别动！', hands: false,
+    init() { survived = 0; jarFill = 0; phase = 'go'; phaseT = 2.5; msg = '绿灯！使劲动！'; graceT = 0; motionRun = 0; },
     update(dt, S, W, H) {
       if (caughtFlash > 0) caughtFlash -= dt;
       if (phase === 'go') {
         phaseT -= dt;
         jarFill = Math.min(jarMax, jarFill + S.totalMotion * dt * 0.8);
-        if (phaseT <= 0) { phase = 'freeze'; phaseT = 2 + Math.random() * 2; msg = '木！头！人！'; }
+        if (phaseT <= 0) { phase = 'freeze'; phaseT = 2 + Math.random() * 2; msg = '木！头！人！'; graceT = GRACE; motionRun = 0; }
       } else if (phase === 'freeze') {
         phaseT -= dt;
         jarFill = Math.max(0, jarFill - dt * 2);
-        if (S.totalMotion > 8 && phaseT > 0.2) {
-          addShake(1); caughtFlash = 0.5;
-          particles.burst(W / 2, H / 2, PAL.red, 30, 7);
-          phase = 'over'; msg = '被抓到啦！';
-          return { over: true, score: Math.floor(jarFill * 10) + Math.floor(survived), best: Math.floor(jarFill) };
+        if (graceT > 0) {
+          graceT -= dt; // 缓冲期：显示"快停住！"但不判抓、不累计
+          motionRun = 0;
+          if (graceT <= 0) msg = '定住——！';
+        } else if (phaseT > 0.2) {
+          if (S.totalMotion > MOTION_LIMIT) {
+            motionRun += dt; // 按时间累计：连续运动超过 0.35 秒才算真的动了
+            if (motionRun >= 0.35) {
+              addShake(1); caughtFlash = 0.5;
+              particles.burst(W / 2, H / 2, PAL.red, 30, 7);
+              phase = 'over'; msg = '被抓到啦！';
+              return { over: true, score: Math.floor(jarFill * 10) + Math.floor(survived), best: Math.floor(jarFill) };
+            }
+          } else {
+            motionRun = 0; // 一旦低于阈值立即清零：断续小动作不算
+          }
         }
         if (phaseT <= 0) { survived += 10; phase = 'go'; phaseT = 1.5 + Math.random() * 2; msg = '绿灯！使劲动！'; }
       }
@@ -206,7 +285,7 @@ export function createFreeze() {
       drawPanel(ctx, 8, 8, 220, 26);
       drawText(ctx, `星星${Math.floor(jarFill)} 坚持${Math.floor(survived)}`, 16, 26, 10, PAL.yellow);
       drawText(ctx, msg, W / 2, 150, 17, phase === 'freeze' ? PAL.red : PAL.green, 'center');
-      drawText(ctx, phase === 'freeze' ? '定住！别动！！' : '越动星星越多！', W / 2, H - 8, 11, PAL.white, 'center');
+      drawText(ctx, phase === 'freeze' ? (graceT > 0 ? '快——停住！！' : '定住！别动！！') : '越动星星越多！', W / 2, H - 8, 11, PAL.white, 'center');
     }
   };
 }
