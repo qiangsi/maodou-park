@@ -1,5 +1,6 @@
 // 毛豆乐园 - 像素体感引擎：摄像头动作识别 + 麦克风音量
 // 全部本地识别，不录像不上传。
+import { PAL } from './render.js';
 
 export function startCamera(video, previewCanvas) {
   return navigator.mediaDevices.getUserMedia({
