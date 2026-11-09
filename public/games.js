@@ -223,7 +223,7 @@ export function createFreeze() {
   let caughtFlash = 0;
   let graceT = 0;      // 红灯缓冲期：刚变红灯不判抓（你还需要时间停住）
   let motionRun = 0;   // 连续超阈值帧数（防单帧误判）
-  const MOTION_LIMIT = 16;  // 阈值提高：呼吸、轻微晃动不算
+  const MOTION_LIMIT = 6;   // 阈值：红灯时运动量超过它就算在动（帧差总量，挥手通常 10~45）
   const GRACE = 1.0;        // 红灯亮起后 1 秒缓冲（够你反应停住）
   // 判定改为按时间：连续大动 ≥0.35 秒才抓（见 update 内）
   const particles = new Particles();
@@ -245,7 +245,7 @@ export function createFreeze() {
           if (graceT <= 0) msg = '定住——！';
         } else if (phaseT > 0.2) {
           if (S.totalMotion > MOTION_LIMIT) {
-            motionRun += dt; // 按时间累计：连续运动超过 0.35 秒才算真的动了
+            motionRun += dt * 2; // 按时间累计（30fps 下实际运动时长≈2倍）：连续动 ≥0.35 秒才抓
             if (motionRun >= 0.35) {
               addShake(1); caughtFlash = 0.5;
               particles.burst(W / 2, H / 2, PAL.red, 30, 7);
