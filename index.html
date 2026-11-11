@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>毛豆乐园 - 摄像头麦克风体感游戏</title>
+<style>
+  :root{
+    --bg:#1a1a2e; --panel:#16213e; --accent:#ffd93d; --green:#5aa437;
+    --red:#e23d3d; --text:#eee;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:"Press Start 2P","Zpix",monospace,"PingFang SC","Microsoft YaHei",sans-serif;
+    image-rendering:pixelated;
+    min-height:100vh;
+  }
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:960px;margin:0 auto;padding:16px}
+  h1{font-size:28px;color:var(--accent);text-shadow:3px 3px 0 #000;margin:18px 0 8px;letter-spacing:2px}
+  .subtitle{color:#aaa;font-size:13px;margin-bottom:24px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:20px}
+  .card{
+    background:var(--panel); border:3px solid #000; box-shadow:4px 4px 0 #000;
+    padding:14px; cursor:pointer; transition:transform .08s;
+    display:block;
+  }
+  .card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--accent)}
+  .card .icon{font-size:36px;display:block;margin-bottom:8px}
+  .card h3{color:var(--accent);font-size:14px;margin-bottom:6px}
+  .card p{font-size:11px;color:#bbb;line-height:1.6}
+  .btn{
+    display:inline-block;background:var(--green);color:#fff;border:3px solid #000;
+    box-shadow:4px 4px 0 #000;padding:12px 22px;font-size:14px;cursor:pointer;
+    font-family:inherit;text-decoration:none;margin:6px 8px 6px 0;
+  }
+  .btn:hover{background:#6dc247}
+  .btn.alt{background:#3b5bb5}.btn.alt:hover{background:#4a6fd0}
+  .btn.danger{background:var(--red)}
+  header{border-bottom:3px solid #000;background:var(--panel);padding:12px 0}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .logo{font-size:18px;color:var(--accent);text-shadow:2px 2px 0 #000}
+  nav a{margin-left:14px;font-size:12px}
+  .privacy{margin-top:28px;font-size:10px;color:#777;line-height:1.8;border-top:1px solid #333;padding-top:14px}
+  .howto{background:var(--panel);border:3px solid #000;box-shadow:4px 4px 0 #000;padding:16px;margin-top:24px}
+  .howto h2{font-size:14px;color:var(--accent);margin-bottom:10px}
+  .howto ol{margin-left:20px;font-size:12px;line-height:2;color:#ccc}
+  @media(max-width:600px){h1{font-size:20px}.card .icon{font-size:28px}}
+</style>
+</head>
+<body>
+<script>globalThis.__LIGHTVELA_RELEASE_ID__="__LIGHTVELA_RELEASE_ID__";</script>
+<header>
+  <div class="wrap">
+    <span class="logo">🟢 毛豆乐园</span>
+    <nav>
+      <a href="./">首页</a>
+      <a href="./leaderboard.html">🏆 排行榜</a>
+    </nav>
+  </div>
+</header>
+<div class="wrap">
+  <h1>摄像头体感游戏</h1>
+  <p class="subtitle">站到摄像头前，跳、挥手、下蹲、大声喊——屏幕里的毛豆跟着你动！画面只在你的电脑上识别，不录像不上传。</p>
+  <a class="btn" href="./game.html">▶ 开始玩</a>
+  <a class="btn alt" href="./leaderboard.html">🏆 排行榜</a>
+
+  <div class="grid">
+    <a class="card" href="./game.html?g=fruit">
+      <span class="icon">🍉</span><h3>切水果</h3>
+      <p>挥手切开飞起的水果，炸弹别碰！连击越高分越高。</p>
+    </a>
+    <a class="card" href="./game.html?g=jump">
+      <span class="icon">🟢</span><h3>跳跳豆</h3>
+      <p>刺球滚过来啦，跳起来躲开它，越跳越快！</p>
+    </a>
+    <a class="card" href="./game.html?g=freeze">
+      <span class="icon">🪵</span><h3>木头人</h3>
+      <p>绿灯随便动，红灯喊"木头人"马上定住！</p>
+    </a>
+    <a class="card" href="./game.html?g=shout">
+      <span class="icon">🎈</span><h3>大声喊气球</h3>
+      <p>对着麦克风喊"啊——！"把气球喊爆，30秒看谁喊得响！</p>
+    </a>
+  </div>
+
+  <div class="howto">
+    <h2>三步开玩</h2>
+    <ol>
+      <li>用 Chrome 或 Edge 打开本页，允许使用摄像头和麦克风（笔记本自带的就够）。</li>
+      <li>后退到离摄像头 2～3 米，让画面能看到你的上半身。</li>
+      <li>动起来！挥手切水果、跳跃躲刺球、定住木头人、喊爆气球。</li>
+    </ol>
+  </div>
+
+  <p class="privacy">🔒 隐私说明：摄像头画面和麦克风音量只在你的浏览器里实时识别，不会录像、不会上传，服务器收不到任何画面和声音。只有你提交的游戏分数和昵称会存到排行榜。</p>
+</div>
+</body>
+</html>
